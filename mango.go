@@ -5,7 +5,6 @@ import (
 	"encoding/json"
 	"fmt"
 	"io/ioutil"
-	"log"
 	"net/http"
 	"net/url"
 )
@@ -38,9 +37,12 @@ func MangoFind(couchURL url.URL, dbName string, q MangoQuery, out interface{}) (
 		return err
 	}
 	buf := bytes.NewBuffer(b)
-	log.Println(couchURL.String())
-	log.Println(buf.String())
-	cl, _ := http.Post(couchURL.String(), "application/json", buf)
+
+	cl, err := http.Post(couchURL.String(), "application/json", buf)
+
+	if err != nil {
+		return err
+	}
 
 	defer cl.Body.Close()
 

@@ -35,11 +35,11 @@ type MangoSort map[string]string
 
 type CouchIndex struct {
 	IndexType  string               `json:"type"`
-	Definition CouchIndexDefinition `json:"def"`
+	Definition CouchIndexDefinition `json:"index"`
 }
 
 type CouchIndexDefinition struct {
-	Fields map[string]string `json:"fields"`
+	Fields []map[string]string `json:"fields"`
 }
 
 func MangoFind(couchURL url.URL, dbName string, q MangoQuery, out interface{}) (err error) {

@@ -42,7 +42,7 @@ type CouchIndexDefinition struct {
 	Fields []map[string]string `json:"fields"`
 }
 
-func MangoFind(couchURL url.URL, dbName string, q MangoQuery, out interface{}) (err error) {
+func MangoFind(couchURL url.URL, transport *http.Transport, dbName string, q MangoQuery, out interface{}) (err error) {
 	var b []byte
 	couchURL.Path = fmt.Sprintf("/%s/_find", dbName)
 	if b, err = json.Marshal(q); err != nil {
@@ -50,7 +50,11 @@ func MangoFind(couchURL url.URL, dbName string, q MangoQuery, out interface{}) (
 	}
 	buf := bytes.NewBuffer(b)
 
-	cl, err := http.Post(couchURL.String(), "application/json", buf)
+	var hcl = &http.Client{
+		Transport: transport,
+	}
+
+	cl, err := hcl.Post(couchURL.String(), "application/json", buf)
 
 	if err != nil {
 		return err
@@ -64,7 +68,7 @@ func MangoFind(couchURL url.URL, dbName string, q MangoQuery, out interface{}) (
 	return nil
 }
 
-func EnsureIndex(couchURL url.URL, dbName string, index CouchIndex) (err error) {
+func EnsureIndex(couchURL url.URL, transport *http.Transport, dbName string, index CouchIndex) (err error) {
 	var b []byte
 	couchURL.Path = fmt.Sprintf("/%s/_index", dbName)
 	if b, err = json.Marshal(index); err != nil {
@@ -72,7 +76,11 @@ func EnsureIndex(couchURL url.URL, dbName string, index CouchIndex) (err error) 
 	}
 	buf := bytes.NewBuffer(b)
 
-	_, err = http.Post(couchURL.String(), "application/json", buf)
+	var hcl = &http.Client{
+		Transport: transport,
+	}
+
+	_, err = hcl.Post(couchURL.String(), "application/json", buf)
 
 	if err != nil {
 		return err

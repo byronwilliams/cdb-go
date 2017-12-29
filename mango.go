@@ -9,6 +9,9 @@ import (
 	"net/url"
 )
 
+const SortAsc = "asc"
+const SortDesc = "desc"
+
 type MangoQuery struct {
 	Selector map[string]MangoCondition `json:"selector"`
 	Sort     []MangoSort               `json:"sort,omitempty"`
@@ -30,6 +33,15 @@ type MangoCondition struct {
 
 type MangoSort map[string]string
 
+type CouchIndex struct {
+	IndexType  string               `json:"type"`
+	Definition CouchIndexDefinition `json:"def"`
+}
+
+type CouchIndexDefinition struct {
+	Fields map[string]string `json:"fields"`
+}
+
 func MangoFind(couchURL url.URL, dbName string, q MangoQuery, out interface{}) (err error) {
 	var b []byte
 	couchURL.Path = fmt.Sprintf("/%s/_find", dbName)
@@ -48,6 +60,23 @@ func MangoFind(couchURL url.URL, dbName string, q MangoQuery, out interface{}) (
 
 	b, _ = ioutil.ReadAll(cl.Body)
 	json.Unmarshal(b, out)
+
+	return nil
+}
+
+func EnsureIndex(couchURL url.URL, dbName string, index CouchIndex) (err error) {
+	var b []byte
+	couchURL.Path = fmt.Sprintf("/%s/_index", dbName)
+	if b, err = json.Marshal(index); err != nil {
+		return err
+	}
+	buf := bytes.NewBuffer(b)
+
+	_, err = http.Post(couchURL.String(), "application/json", buf)
+
+	if err != nil {
+		return err
+	}
 
 	return nil
 }

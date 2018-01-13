@@ -15,6 +15,10 @@ const SortDesc = "desc"
 type MangoQuery struct {
 	Selector map[string]MangoCondition `json:"selector"`
 	Sort     []MangoSort               `json:"sort,omitempty"`
+	Limit    int                       `json:"limit,omitempty"`
+	Skip     int                       `json:"skip,omitempty"`
+	Fields   []interface{}             `json:"fields,omitempty"`
+	UseIndex interface{}               `json:"use_index,omitempty"`
 }
 
 type MangoCondition struct {
